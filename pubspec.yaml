@@ -29,7 +29,7 @@ dependencies:
   app_links_platform_interface: 1.1.0
   auto_size_text: 3.0.0
   cached_network_image: 3.3.1
-  collection: 1.18.0
+  collection: 1.19.0
   dropdown_button2: 2.3.9
   equatable: 2.0.5
   file_picker: 8.0.3
