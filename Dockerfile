@@ -7,7 +7,7 @@ RUN apt-get install -y curl git unzip
 
 # define variables
 ARG FLUTTER_SDK=/usr/local/flutter
-ARG FLUTTER_VERSION=3.10.5
+ARG FLUTTER_VERSION=3.22.2
 ARG APP=/app/
 
 #clone flutter
@@ -31,6 +31,7 @@ WORKDIR $APP
 
 # Run build: 1 - clean, 2 - pub get, 3 - build web
 RUN flutter clean
+RUN flutter pub add collection:^1.19.0
 RUN flutter pub get
 RUN flutter build web
 
