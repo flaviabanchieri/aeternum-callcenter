@@ -1,5 +1,5 @@
 # Usando a imagem oficial do Flutter
-FROM cirruscilabs/flutter:latest AS builder
+FROM cirruslabs/flutter:latest AS builder
 
 # Definindo o diretório de trabalho
 WORKDIR /app
