@@ -1,26 +1,47 @@
-# Usando a imagem oficial do Flutter
-FROM cirruslabs/flutter:latest AS builder
+# Environemnt to install flutter and build web
+FROM debian:latest AS build-env
 
-# Definindo o diretório de trabalho
-WORKDIR /app
+# install all needed stuff
+RUN apt-get update
+RUN apt-get install -y curl git unzip
 
-# Copiando os arquivos pubspec.yaml e pubspec.lock
-COPY pubspec.* ./
+# define variables
+ARG FLUTTER_SDK=/usr/local/flutter
+ARG FLUTTER_VERSION=3.10.5
+ARG APP=/app/
 
-# Instalando as dependências
+#clone flutter
+RUN git clone https://github.com/flutter/flutter.git $FLUTTER_SDK
+# change dir to current flutter folder and make a checkout to the specific version
+RUN cd $FLUTTER_SDK && git fetch && git checkout $FLUTTER_VERSION
+
+# setup the flutter path as an enviromental variable
+ENV PATH="$FLUTTER_SDK/bin:$FLUTTER_SDK/bin/cache/dart-sdk/bin:${PATH}"
+
+# Start to run Flutter commands
+# doctor to see if all was installes ok
+RUN flutter doctor -v
+
+# create folder to copy source code
+RUN mkdir $APP
+# copy source code to folder
+COPY . $APP
+# stup new folder as the working directory
+WORKDIR $APP
+
+# Run build: 1 - clean, 2 - pub get, 3 - build web
+RUN flutter clean
 RUN flutter pub get
-
-# Copiando o restante dos arquivos do projeto
-COPY . .
-
-# Compilando a aplicação Flutter para web
 RUN flutter build web
 
-# Usando a imagem do Nginx
-FROM nginx:alpine
+# once heare the app will be compiled and ready to deploy
 
-# Copiando os arquivos da build para o Nginx
-COPY --from=builder /app/build/web /usr/share/nginx/html
+# use nginx to deploy
+FROM nginx:1.25.2-alpine
 
-# Expondo a porta 80 do Nginx
+# copy the info of the builded web app to nginx
+COPY --from=build-env /app/build/web /usr/share/nginx/html
+
+# Expose and run nginx
 EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
